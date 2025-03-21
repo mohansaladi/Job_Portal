@@ -1,0 +1,137 @@
+{% extends 'user_navbar.html' %}
+{% block title %} User Profile {% endblock %}
+{% block home %} active {% endblock %}
+{% block css %}
+{% endblock %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-6">
+
+            <form class="container mt-4" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                {% if alert %}
+                <div class="alert alert-success mt-3">
+                    Profile Updated Successfully!
+                </div>
+                {% endif %}
+
+                {% if error %}
+                <div class="alert alert-danger mt-3">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <div class="row">
+                    <div class="form-group col-md-6">
+                        <label>First Name</label>
+                        <input type="text" class="form-control mt-2" name="first_name" id="first_name"
+                            value="{{ applicant.user.first_name }}" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Last Name</label>
+                        <input type="text" class="form-control mt-2" name="last_name" id="last_name"
+                            value="{{ applicant.user.last_name }}" required>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="form-group col-md-12">
+                        <label>Username</label>
+                        <input type="text" class="form-control mt-2" name="username" id="username"
+                            value="{{ applicant.user.username }}" readonly>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="form-group col-md-6">
+                        <label>Email Id</label>
+                        <input type="email" class="form-control mt-2" name="email" id="email" value="{{ applicant.user.email }}" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Contact Number</label>
+                        <input type="tel" class="form-control mt-2" name="phone" id="phone" value="{{ applicant.phone }}" required>
+                    </div>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="form-group col-md-6">
+                        <label>Gender</label>
+                        <div class="mt-2" style="border: 1px solid lightgrey; padding: 5px; border-radius: 6px;">
+                            <div class="form-check form-check-inline">
+                                <input type="radio" id="male" class="custom-control-input" name="gender" value="Male" {% if applicant.gender == "Male" %}checked{% endif %}>
+                                <label for="male" class="custom-control-label">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" id="female" class="custom-control-input" name="gender" value="Female" {% if applicant.gender == "Female" %}checked{% endif %}>
+                                <label for="female" class="custom-control-label">Female</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Profile Photo</label>
+                        <input type="file" class="form-control mt-2" name="image" id="image" accept="image/*">
+                    </div>
+                </div>
+
+                <input type="submit" value="Submit" class="btn mt-4" id="submitBtn" style="background-color: #4f868c; color: white; font-size: larger; width: 8rem;">
+            </form>
+
+        </div>
+        <div class="col-sm-4 mt-5 text-center">
+            {% if applicant.image %}
+                <img src="{{ applicant.image.url }}" alt="Profile Photo" width="200px" height="200px">
+            {% else %}
+                <img src="/static/images/default-profile.png" alt="Default Profile Photo" width="200px" height="200px">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Applications Status Section -->
+    <div class="mt-5">
+        <h3>My Job Applications</h3>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Job Title</th>
+                    <th>Applied On</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for application in applications %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ application.job.title }}</td>
+                    <td>{{ application.apply_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if application.status == "Accepted" %}
+                            <span class="badge bg-success">Accepted</span>
+                        {% elif application.status == "Rejected" %}
+                            <span class="badge bg-danger">Rejected</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Pending</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No applications found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    // Disable submit button after submission to prevent double clicks
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('submitBtn').disabled = true;
+    });
+</script>
+{% endblock %}

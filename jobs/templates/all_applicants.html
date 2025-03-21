@@ -1,0 +1,63 @@
+{% extends 'company_navbar.html' %}
+
+{% block title %} All Applicants {% endblock %}
+{% block all_applicants %} active {% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    {% if application %}
+    <table class="table table-hover" id="example">
+        <thead>
+            <tr>
+                <th>Sr.No</th>
+                <th>Job Title</th>
+                <th>Applicant</th>
+                <th>Applied On</th>
+                <th>Resume</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in application %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ i.job.title }}</td>
+                <td>{{ i.applicant.user.get_full_name }}</td>
+                <td>{{ i.apply_date|date:"d M Y" }}</td>
+                <td>
+                    <a href="{{ i.resume.url }}" class="btn"><i class="fa fa-file"></i></a>
+                </td>
+                <td>
+                    {% if i.status == "Accepted" %}
+                        <span class="badge bg-success">Accepted</span>
+                    {% elif i.status == "Rejected" %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if i.status == "Pending" %}
+                        <form action="{% url 'accept_applicant' i.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                        </form>
+
+                        <form action="{% url 'reject_applicant' i.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                    {% else %}
+                        <span class="badge bg-secondary">No Actions</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No applications found.</p>
+    {% endif %}
+</div>
+{% endblock %}
